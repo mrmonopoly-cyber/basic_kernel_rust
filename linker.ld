@@ -17,33 +17,34 @@ SECTIONS
 	   memory which is verified to be available by the firmware, in order to
 	   work around this issue. This does not use that feature, so 2M was
 	   chosen as a safer option than the traditional 1M. */
-	. = 2M;
+	. = 4K;
 
   /* First put the multiboot header, as it is required to be put very early
   in the image or the bootloader won't recognize the file format.
   Next we'll put the .text section. */
-  .multiboot : {
-    *(.multiboot)
+  .multiboot : ALIGN(8)
+  {
+    KEEP(*(.multiboot))
   }
 
-	.text : {
+	.text : ALIGN(4K){
 		*(.text)
 	}
 
 	/* Read-only data. */
-	.rodata : {
+	.rodata : ALIGN(4K){
 		*(.rodata)
 	}
 
 	/* Read-write data (initialized) */
-	.data : {
+	.data : ALIGN(4K){
 		*(.data)
 	}
 
 	/* Read-write data (uninitialized) and stack */
-	.bss : {
+	.bss : ALIGN(4K){
     *(COMMON)
-      *(.bss)
+    *(.bss)
    }
 
 	/* The compiler may produce other sections, by default it will put them in
