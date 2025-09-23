@@ -1,4 +1,5 @@
-#![allow(unused)]
+pub mod log;
+
 #[repr(align(16),C)]
 pub struct MultiBootV1{
     magic : u32,
