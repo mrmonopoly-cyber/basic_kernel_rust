@@ -11,10 +11,13 @@ fn panic(_info: &core::panic::PanicInfo)->!{
 }
 
 pub fn kmain() -> !{
-    use boot::multiboot_v1::log::*;
-    let mut vga = VGALog::initialize(VgaColor::LightGrey, VgaColor::Black);
+    #[cfg(feature = "multiboot_v1")]
+    {
+        use boot::multiboot_v1::log::*;
+        let mut vga = VGALog::initialize(VgaColor::LightGrey, VgaColor::Black);
+        write!(vga, "hello kernel").unwrap();
+    }
 
-    write!(vga, "hello kernel").unwrap();
 
     loop{}
 }
