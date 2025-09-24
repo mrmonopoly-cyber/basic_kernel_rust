@@ -1,5 +1,6 @@
 ISO ?= damos.iso
-BIN ?= ./isodir/boot/damos.bin
+BIN ?= isodir/boot/damos.bin
+TARGET ?= target/x86_64-unknown-none/release/basic_kernel
 
 all: update run
 
@@ -12,10 +13,12 @@ run: $(ISO)
 
 $(ISO):  $(BIN)
 	grub-mkrescue -o damos.iso ./isodir
+	$(shell  if ! grub-file --is-x86-multiboot $(BIN); then echo "damos.bin is not valid x86-multiboot format"; fi)
+
 
 $(BIN): 
 	cargo b --release
-	cp ./target/x86_64-unknown-none/release/basic_uefi $(BIN)
+	cp $(TARGET) $(BIN)
 
 clean:
 	rm -f $(BIN)
