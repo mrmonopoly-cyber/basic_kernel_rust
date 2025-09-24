@@ -1,6 +1,8 @@
 pub struct VGALog
 {
     vga_color: u8,
+    x:u8,
+    y:u8,
 }
 
 /* Hardware text mode color constants. */
@@ -25,31 +27,28 @@ pub enum VgaColor {
     White = 15,
 }
 
-static mut VGA_POS_X : u8=0;
-static mut VGA_POS_Y : u8=0;
-
 #[allow(unused)]
 impl VGALog {
     const VGA_BUFFER_ADDRESS: usize = 0xB8000;
-    const VGA_WIDTH : u8= 2;
-    const VGA_HEIGHT : u8 = 2;
+    const VGA_WIDTH : u8= 80;
+    const VGA_HEIGHT : u8 = 25;
 
 
     pub fn initialize(foreground_color: VgaColor, background_color: VgaColor) -> Self {
         let vga_color = Self::vga_entry_color(foreground_color, background_color);
 
         for y in 0..Self::VGA_HEIGHT{
-            for x in 0..Self::VGA_HEIGHT{
-                Self::write_c_at(' ', y, x, vga_color);
+            for x in 0..Self::VGA_WIDTH{
+                Self::write_c_at(b' ', y, x, vga_color);
             }
         }
 
-        Self{vga_color}
+        Self{vga_color,x:0,y:0}
     }
 
-    pub fn write_string(&self, string: &str)
+    pub fn write_string(&mut self, string: &str)
     {
-        for c in string.chars()
+        for c in string.bytes()
         {
             self.putc(c);
         }
@@ -60,30 +59,29 @@ impl VGALog {
         (foreground_color as u8) | (background_color as u8) << 4
     }
 
-    pub fn putc(&self, c:char)
+    pub fn putc(&mut self, c:u8)
     {
         unsafe {
-            if c=='\n'
+            if c ==b'\n'
             {
-                VGA_POS_X=0;
-                VGA_POS_Y+=1;
-                if VGA_POS_Y == Self::VGA_HEIGHT
+                self.x =0;
+                self.y+=1;
+                if self.y == Self::VGA_HEIGHT
                 {
-                    VGA_POS_Y =0;
+                    self.y=0;
                 }
-
             }
             else
             {
-                Self::write_c_at(c, VGA_POS_Y, VGA_POS_X, self.vga_color);
-                VGA_POS_X+=1;
-                if VGA_POS_X == Self::VGA_WIDTH
+                Self::write_c_at(c, self.y, self.x, self.vga_color);
+                self.x+=1;
+                if self.x >= Self::VGA_WIDTH
                 {
-                    VGA_POS_X=0;
-                    VGA_POS_Y+=1;
-                    if VGA_POS_Y == Self::VGA_HEIGHT
+                    self.x=0;
+                    self.y+=1;
+                    if self.y>= Self::VGA_HEIGHT
                     {
-                        VGA_POS_Y=0;
+                        self.y=0;
                     }
                 }
             }
@@ -92,37 +90,19 @@ impl VGALog {
 
     fn vga_entry(uc: u8, color: u8) -> u16 
     {
-        (uc as u16) | ((color as u16) << 8)
+        let uc = u16::from(uc);
+        let color = u16::from(color);
+        uc | color << 8
     }
 
 
-    fn write_c_at(c:char, pos_y:u8, pos_x:u8, color: u8)
+    fn write_c_at(c:u8, pos_y:u8, pos_x:u8, color: u8)
     {
-        let index : usize = (pos_y as usize) * (Self::VGA_WIDTH as usize) + (pos_x as usize);
+        let index : usize = usize::from(pos_y * Self::VGA_WIDTH + pos_x);
         let vga_ptr : *mut u16 = Self::VGA_BUFFER_ADDRESS as *mut u16;
-        let vga_entry = Self::vga_entry(c as u8, color);
+        let vga_entry = Self::vga_entry(c, color);
         unsafe{
             vga_ptr.add(index).write(vga_entry);
         }
     }
-}
-
-impl log::Log for VGALog{
-    fn enabled(&self, _metadata: &log::Metadata) -> bool {
-        todo!()
-    }
-
-    fn log(&self, record: &log::Record) {
-        // self.write_string(record.level().as_str());
-        // self.write_string(":");
-        // match record.args().as_str(){
-        //     Some(s) => self.write_string(s),
-        //     None => self.write_string("\n"),
-        // }
-    }
-
-    fn flush(&self) {
-        todo!()
-    }
-    // add code here
 }

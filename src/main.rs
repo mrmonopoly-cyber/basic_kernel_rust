@@ -4,8 +4,6 @@
 mod boot;
 mod start;
 
-use::log::info;
-
 #[panic_handler]
 fn panic(_info: &core::panic::PanicInfo)->!{
     loop {}
@@ -13,9 +11,9 @@ fn panic(_info: &core::panic::PanicInfo)->!{
 
 pub fn kmain() -> !{
     use boot::multiboot_v1::log::*;
-    let _vga = VGALog::initialize(VgaColor::LightGrey, VgaColor::Black);
+    let mut vga = VGALog::initialize(VgaColor::LightGrey, VgaColor::Black);
 
-    _vga.write_string("hello");
+    vga.write_string("hello kernel");
 
     loop{}
 }
