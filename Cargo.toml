@@ -17,3 +17,10 @@ panic = "abort"
 [dependencies]
 log = "0.4.28"
 
+
+[features]
+default = ["multiboot_v1","x86"]
+multiboot_v1 = []
+multiboot_v2 = []
+x86 =[]
+amd64=[]
