@@ -106,3 +106,13 @@ impl VGALog {
         }
     }
 }
+
+impl core::fmt::Write for VGALog{
+    fn write_str(&mut self, s: &str) -> core::fmt::Result {
+        for c in s.bytes()
+        {
+            self.putc(c);
+        }
+        Ok(())
+    }
+}
