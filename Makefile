@@ -12,8 +12,8 @@ run: $(ISO)
 	qemu-system-x86_64 -cdrom $(ISO)
 
 $(ISO):  $(BIN)
-	grub-mkrescue -o damos.iso ./isodir
 	$(shell  if ! grub-file --is-x86-multiboot $(BIN); then echo "damos.bin is not valid x86-multiboot format"; fi)
+	grub-mkrescue -o damos.iso ./isodir
 
 
 $(BIN): 
