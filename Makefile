@@ -16,7 +16,7 @@ run: $(ISO)
 
 $(ISO): $(BIN)
 	$(shell  if ! grub-file $(GRUB_FILE) $(BIN); then echo "damos.bin is not valid x86-multiboot format"; fi)
-	grub-mkrescue -o damos.iso $(ISOD)
+	grub-mkrescue -o $(ISO) $(ISOD)
 
 
 $(BIN): 

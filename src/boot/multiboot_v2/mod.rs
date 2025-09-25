@@ -9,33 +9,36 @@ enum ArchTypes{
 }
 
 #[allow(unused)]
-#[repr(align(64),C)]
+#[repr(align(8),C)]
 pub struct MultiBootV2<const N:usize>{
     magic: u32,
     arch: u32,
     header_length: u32,
     checksum: u32,
-    tags: [MultiBootV2Tag;N]
+    tags: [MultiBootV2Tag;N],
+    t_tag_end: MultiBootV2Tag,
 }
 
 #[allow(unused)]
-#[repr(align(64),C)]
+#[repr(align(8),C)]
 pub struct MultiBootV2Tag{
     t_type: u16,
     t_flags: u16,
     t_size: u32,
 }
 
-const END: MultiBootV2Tag = MultiBootV2Tag{t_type:0,t_flags:0,t_size:8};
+const END: MultiBootV2Tag = MultiBootV2Tag{ t_type: 0, t_flags: 0, t_size: 8};
 const MAGIC_V2: u32 = 0xE85250D6;
-const TAG_NUM: usize = 1;
+const TAG_NUM: usize = 0;
+const HEADER_LENGTH : u32 = core::mem::size_of::<MultiBootV2<TAG_NUM>>() as u32;
 
 #[unsafe(link_section = ".multiboot")]
 #[used]
 pub static MULTIBOOT_HEADER: MultiBootV2<TAG_NUM>= MultiBootV2{
     magic: MAGIC_V2,
     arch: ArchTypes::I386ProtectedMode as u32,
-    header_length: core::mem::size_of::<MultiBootV2<TAG_NUM>>() as u32,
-    checksum: (MAGIC_V2 + ArchTypes::I386ProtectedMode as u32).wrapping_neg(),
-    tags : [END]
+    header_length: HEADER_LENGTH,
+    checksum: (MAGIC_V2 + ArchTypes::I386ProtectedMode as u32 + HEADER_LENGTH).wrapping_neg(),
+    tags : [],
+    t_tag_end: END,
 };
