@@ -1,9 +1,10 @@
 #![no_std]
 #![no_main]
 
-use core::fmt::Write;
 mod boot;
 mod start;
+
+use log::*;
 
 #[panic_handler]
 fn panic(_info: &core::panic::PanicInfo)->!{
@@ -11,13 +12,9 @@ fn panic(_info: &core::panic::PanicInfo)->!{
 }
 
 pub fn kmain() -> !{
-    #[cfg(feature = "multiboot_v1")]
-    {
-        use boot::multiboot_v1::log::*;
-        let mut vga = VGALog::initialize(VgaColor::LightGrey, VgaColor::Black);
-        write!(vga, "hello kernel").unwrap();
-    }
 
+    info!("hello kernel");
+    
 
     loop{}
 }
