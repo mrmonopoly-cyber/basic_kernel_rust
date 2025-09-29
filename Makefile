@@ -57,7 +57,7 @@ update:
 	rm -f $(BIN)
 
 run: $(ISO) 
-	qemu-system-x86_64 -cdrom $(ISO)
+	qemu-system-x86_64 -cdrom $(ISO) -serial stdio
 
 $(ISO): $(BIN)
 	$(shell  if ! grub-file $(GRUB_FILE) $(BIN); then echo "damos.bin is not valid x86-multiboot format"; fi)

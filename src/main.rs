@@ -1,10 +1,12 @@
 #![no_std]
 #![no_main]
 
-mod boot;
-mod start;
+use core::fmt::Write;
 
-use log::*;
+mod boot;
+mod io;
+mod d_log;
+mod start;
 
 #[panic_handler]
 fn panic(_info: &core::panic::PanicInfo)->!{
@@ -12,9 +14,10 @@ fn panic(_info: &core::panic::PanicInfo)->!{
 }
 
 pub fn kmain() -> !{
+    let mut logger = d_log::DebugLog::default();
 
-    info!("hello kernel");
-    
+    logger.write_str("hello kernel!\n");
+
 
     loop{}
 }
